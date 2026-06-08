@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>학점 예상기</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6e6e73;
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .course-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+
+    .course-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .course-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #ff3b30;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .remove-btn:hover { background: #fff0ef; }
+
+    .field-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    label {
+      font-size: 13px;
+      color: #6e6e73;
+      font-weight: 500;
+    }
+
+    input[type="text"], input[type="number"], select {
+      border: 1.5px solid #e0e0e5;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 15px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus { border-color: #0071e3; background: #fff; }
+
+    .eval-section {
+      margin-top: 16px;
+    }
+
+    .eval-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1d1d1f;
+    }
+
+    .eval-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 36px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .eval-item input { margin: 0; }
+
+    .delete-eval-btn {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .delete-eval-btn:hover { color: #ff3b30; background: #fff0ef; }
+
+    .add-eval-btn {
+      background: none;
+      border: 1.5px dashed #ccc;
+      border-radius: 8px;
+      padding: 8px;
+      width: 100%;
+      font-size: 13px;
+      color: #6e6e73;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .add-eval-btn:hover { border-color: #0071e3; color: #0071e3; }
+
+    .weight-warning {
+      font-size: 12px;
+      color: #ff9500;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .relative-extra {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+      display: none;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #f5f5f7;
+      text-align: center;
+    }
+
+    .result-grade {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .result-score {
+      font-size: 15px;
+      color: #6e6e73;
+      margin-top: 4px;
+    }
+
+    .result-bar {
+      margin-top: 12px;
+      height: 8px;
+      background: #e0e0e5;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .result-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .grade-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .add-course-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: #fff;
+      border: 2px dashed #ccc;
+      border-radius: 16px;
+      font-size: 16px;
+      color: #6e6e73;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .add-course-btn:hover { border-color: #0071e3; color: #0071e3; }
+
+    .summary-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 40px;
+    }
+
+    .summary-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 15px;
+    }
+
+    .summary-row:last-child { border-bottom: none; }
+
+    .summary-grade {
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .col-header {
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .eval-headers {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 36px;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>학점 예상기</h1>
+    <p class="subtitle">평가 항목과 점수를 입력하면 예상 학점을 알려드려요</p>
+
+    <div id="courses"></div>
+
+    <button class="add-course-btn" onclick="addCourse()">+ 과목 추가</button>
+
+    <div class="summary-card" id="summary" style="display:none">
+      <div class="summary-title">전체 과목 요약</div>
+      <div id="summary-list"></div>
+    </div>
+  </div>
+
+  <script>
+    let courseCount = 0;
+
+    const GRADE_THRESHOLDS = [
+      { grade: 'A+', min: 95, color: '#34c759' },
+      { grade: 'A',  min: 90, color: '#30b850' },
+      { grade: 'A-', min: 87, color: '#28a745' },
+      { grade: 'B+', min: 83, color: '#0071e3' },
+      { grade: 'B',  min: 80, color: '#0066cc' },
+      { grade: 'B-', min: 77, color: '#005bb5' },
+      { grade: 'C+', min: 73, color: '#ff9500' },
+      { grade: 'C',  min: 70, color: '#e08800' },
+      { grade: 'C-', min: 67, color: '#cc7700' },
+      { grade: 'D+', min: 63, color: '#ff3b30' },
+      { grade: 'D',  min: 60, color: '#e0342a' },
+      { grade: 'F',  min: 0,  color: '#8e8e93' },
+    ];
+
+    function getAbsoluteGrade(score) {
+      for (const t of GRADE_THRESHOLDS) {
+        if (score >= t.min) return t;
+      }
+      return GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1];
+    }
+
+    function getRelativeGrade(percentile) {
+      if (percentile <= 10) return { grade: 'A+', color: '#34c759' };
+      if (percentile <= 20) return { grade: 'A',  color: '#30b850' };
+      if (percentile <= 30) return { grade: 'A-', color: '#28a745' };
+      if (percentile <= 45) return { grade: 'B+', color: '#0071e3' };
+      if (percentile <= 60) return { grade: 'B',  color: '#0066cc' };
+      if (percentile <= 70) return { grade: 'B-', color: '#005bb5' };
+      if (percentile <= 78) return { grade: 'C+', color: '#ff9500' };
+      if (percentile <= 85) return { grade: 'C',  color: '#e08800' };
+      if (percentile <= 90) return { grade: 'C-', color: '#cc7700' };
+      if (percentile <= 95) return { grade: 'D',  color: '#ff3b30' };
+      return { grade: 'F', color: '#8e8e93' };
+    }
+
+    function addCourse() {
+      courseCount++;
+      const id = courseCount;
+      const div = document.createElement('div');
+      div.className = 'course-card';
+      div.id = `course-${id}`;
+      div.innerHTML = `
+        <div class="course-header">
+          <input type="text" style="font-size:17px;font-weight:600;border:none;background:transparent;padding:0;flex:1;outline:none"
+            placeholder="과목명" oninput="updateSummary()" value="과목 ${id}" />
+          <button class="remove-btn" onclick="removeCourse(${id})">삭제</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>평가 방식</label>
+            <select onchange="toggleRelative(${id}, this.value)">
+              <option value="absolute">절대평가</option>
+              <option value="relative">상대평가</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="eval-section">
+          <div class="eval-section-title">평가 항목</div>
+          <div class="eval-headers">
+            <span class="col-header">항목명</span>
+            <span class="col-header">비중 (%)</span>
+            <span class="col-header">내 점수</span>
+            <span></span>
+          </div>
+          <div id="evals-${id}">
+            ${makeEvalItem(id)}
+            ${makeEvalItem(id)}
+            ${makeEvalItem(id)}
+          </div>
+          <button class="add-eval-btn" onclick="addEvalItem(${id})">+ 항목 추가</button>
+          <div class="weight-warning" id="warn-${id}">⚠ 비중 합계가 100%가 아니에요</div>
+        </div>
+
+        <div class="relative-extra" id="relative-${id}">
+          <div class="field-row">
+            <div class="field-group">
+              <label>수강 인원</label>
+              <input type="number" placeholder="예: 50" min="1" oninput="calcCourse(${id})" />
+            </div>
+            <div class="field-group">
+              <label>내 예상 등수</label>
+              <input type="number" placeholder="예: 5" min="1" oninput="calcCourse(${id})" />
+            </div>
+          </div>
+        </div>
+
+        <div class="result-box" id="result-${id}">
+          <div style="color:#aaa;font-size:14px">점수와 비중을 입력하면 예상 학점이 나와요</div>
+        </div>
+      `;
+      document.getElementById('courses').appendChild(div);
+
+      div.querySelectorAll('input[type="number"], input[type="text"], select').forEach(el => {
+        el.addEventListener('input', () => calcCourse(id));
+        el.addEventListener('change', () => calcCourse(id));
+      });
+    }
+
+    let evalCounts = {};
+
+    function makeEvalItem(courseId) {
+      if (!evalCounts[courseId]) evalCounts[courseId] = 0;
+      evalCounts[courseId]++;
+      const eid = evalCounts[courseId];
+      const placeholders = ['중간고사', '기말고사', '과제', '출석', '퀴즈', '발표'];
+      const ph = placeholders[eid - 1] || `항목 ${eid}`;
+      return `
+        <div class="eval-item" id="eval-${courseId}-${eid}">
+          <input type="text" placeholder="${ph}" oninput="calcCourse(${courseId})" />
+          <input type="number" placeholder="%" min="0" max="100" oninput="calcCourse(${courseId})" />
+          <input type="number" placeholder="점" min="0" max="100" oninput="calcCourse(${courseId})" />
+          <button class="delete-eval-btn" onclick="removeEval(${courseId}, ${eid})">×</button>
+        </div>
+      `;
+    }
+
+    function addEvalItem(courseId) {
+      const container = document.getElementById(`evals-${courseId}`);
+      const temp = document.createElement('div');
+      temp.innerHTML = makeEvalItem(courseId);
+      container.appendChild(temp.firstElementChild);
+      calcCourse(courseId);
+    }
+
+    function removeEval(courseId, eid) {
+      const el = document.getElementById(`eval-${courseId}-${eid}`);
+      if (el) el.remove();
+      calcCourse(courseId);
+    }
+
+    function removeCourse(id) {
+      const el = document.getElementById(`course-${id}`);
+      if (el) el.remove();
+      updateSummary();
+    }
+
+    function toggleRelative(id, val) {
+      const extra = document.getElementById(`relative-${id}`);
+      extra.style.display = val === 'relative' ? 'block' : 'none';
+      calcCourse(id);
+    }
+
+    function calcCourse(id) {
+      const card = document.getElementById(`course-${id}`);
+      if (!card) return;
+
+      const mode = card.querySelector('select').value;
+      const evalItems = card.querySelectorAll(`#evals-${id} .eval-item`);
+
+      let totalWeight = 0;
+      let weightedScore = 0;
+      let hasScore = false;
+
+      evalItems.forEach(item => {
+        const inputs = item.querySelectorAll('input');
+        const weight = parseFloat(inputs[1].value) || 0;
+        const score = parseFloat(inputs[2].value);
+        totalWeight += weight;
+        if (!isNaN(score)) {
+          weightedScore += (weight / 100) * score;
+          hasScore = true;
+        }
+      });
+
+      const warn = document.getElementById(`warn-${id}`);
+      warn.style.display = (totalWeight > 0 && Math.abs(totalWeight - 100) > 0.5) ? 'block' : 'none';
+
+      const resultBox = document.getElementById(`result-${id}`);
+
+      if (!hasScore) {
+        resultBox.innerHTML = `<div style="color:#aaa;font-size:14px">점수와 비중을 입력하면 예상 학점이 나와요</div>`;
+        updateSummary();
+        return;
+      }
+
+      const scaledScore = totalWeight > 0 ? (weightedScore / totalWeight) * 100 : weightedScore;
+
+      let gradeInfo;
+      let displayNote = '';
+
+      if (mode === 'absolute') {
+        gradeInfo = getAbsoluteGrade(scaledScore);
+        displayNote = `${scaledScore.toFixed(1)}점 기준`;
+      } else {
+        const total = parseFloat(card.querySelector(`#relative-${id} input:nth-child(1)`)?.value ||
+          card.querySelectorAll(`#relative-${id} input`)[0]?.value);
+        const rank = parseFloat(card.querySelectorAll(`#relative-${id} input`)[1]?.value);
+        if (total && rank) {
+          const percentile = (rank / total) * 100;
+          gradeInfo = getRelativeGrade(percentile);
+          displayNote = `상위 ${percentile.toFixed(1)}% (${rank}/${total}명)`;
+        } else {
+          gradeInfo = getAbsoluteGrade(scaledScore);
+          displayNote = `${scaledScore.toFixed(1)}점 (등수 입력 시 상대평가 적용)`;
+        }
+      }
+
+      const barWidth = Math.min(100, scaledScore);
+
+      resultBox.innerHTML = `
+        <div class="result-grade" style="color:${gradeInfo.color}">${gradeInfo.grade}</div>
+        <div class="result-score">${displayNote}</div>
+        <div class="result-bar">
+          <div class="result-bar-fill" style="width:${barWidth}%;background:${gradeInfo.color}"></div>
+        </div>
+        <div class="grade-labels"><span>F</span><span>C</span><span>B</span><span>A+</span></div>
+      `;
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const cards = document.querySelectorAll('.course-card');
+      const summaryList = document.getElementById('summary-list');
+      const summary = document.getElementById('summary');
+
+      if (cards.length < 2) {
+        summary.style.display = 'none';
+        return;
+      }
+
+      let rows = '';
+      cards.forEach(card => {
+        const nameInput = card.querySelector('input[type="text"]');
+        const name = nameInput?.value || '과목';
+        const gradeEl = card.querySelector('.result-grade');
+        const scoreEl = card.querySelector('.result-score');
+        if (gradeEl) {
+          rows += `
+            <div class="summary-row">
+              <span>${name}</span>
+              <span class="summary-grade" style="color:${gradeEl.style.color}">${gradeEl.textContent}</span>
+            </div>
+          `;
+        }
+      });
+
+      summaryList.innerHTML = rows || '<div style="color:#aaa;font-size:14px">점수를 입력한 과목이 없어요</div>';
+      summary.style.display = 'block';
+    }
+
+    // 첫 과목 자동 추가
+    addCourse();
+  </script>
+</body>
+</html>
