@@ -54,6 +54,29 @@
       font-weight: 600;
     }
 
+    .course-name-input {
+      font-size: 17px;
+      font-weight: 600;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      padding: 2px 4px;
+      flex: 1;
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.2s;
+      width: auto;
+    }
+
+    .course-name-input:hover {
+      border-bottom-color: #ccc;
+    }
+
+    .course-name-input:focus {
+      border-bottom-color: #0071e3;
+      background: transparent;
+    }
+
     .remove-btn {
       background: none;
       border: none;
@@ -323,8 +346,8 @@
       div.id = `course-${id}`;
       div.innerHTML = `
         <div class="course-header">
-          <input type="text" style="font-size:17px;font-weight:600;border:none;background:transparent;padding:0;flex:1;outline:none"
-            placeholder="과목명" oninput="updateSummary()" value="과목 ${id}" />
+          <input type="text" class="course-name-input"
+            placeholder="과목명을 입력하세요" oninput="updateSummary()" value="과목 ${id}" />
           <button class="remove-btn" onclick="removeCourse(${id})">삭제</button>
         </div>
 
